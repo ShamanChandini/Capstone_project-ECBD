@@ -1,0 +1,69 @@
+Input file : txns-large.dat
+===========================
+
+Step1 : Create table:
+create table Ecom2(tid String,tdate String,uid String,amt float,cat String,acc String,place String,payment String)
+> row format delimited
+> fields terminated by ' ,'
+> stored as textfile;
+
+Step 2: to insert data from the local path to the hive:
+> load data local inpath '/home/cloudera/Desktop/txns-large.dat' into table Ecom2;
+
+Task 1
+
+Find all the transaction where amt>160.
+
+select * from Ecom1 where amt>160;
+
+===================================================================================
+
+Task 2
+
+Count all the transaction where amount is between 175 to 200.
+
+select * from Ecom1 where amt between 175 and 200
+
+===================================================================================
+
+Task 3
+
+Calculate the total sum and total count and average of all the transaction for each user id.
+
+select uid,sum(amt),count(amt),avg(amt) from Ecom1 group by uid
+===================================================================================
+
+Task 4 
+
+Find the name of user who has spend the maximum amount.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Server Log :
+Input file : sample.log
+
+Step 1: Create table :
+create table logtable(ldate String,ltime String,module String,trace String)
+>row format delimited
+>fields terminated by ' '
+>stored as textfile;
+
+Step 2: to insert data from the local path to the hive:
+> load data local inpath '/home/cloudera/Desktop/txns-large.dat' into table logtable;
+
+Task 1 :
+
+Find The module name which is generating maximum error logs.
+
+select module,count(module) from logtable where trace='[ERROR]' group by module limit 1;

@@ -1,0 +1,249 @@
+Task 1
+
+Find all the transaction where amt>160.
+
+step1 = load '/user/cloudera/txns-large.dat' using PigStorage(',');
+step2 = foreach step1 generate $2,$3;
+step3 = filter step2 by $1>160;
+dump step3;
+
+===================================================================================
+Task 2
+
+Count all the transaction where amount is between 175 to 200.
+
+A = load '/user/cloudera/txns-large.dat' using PigStorage (',') as (tid, d, uid, amt : double , cat, prod,city,state,pt);
+B = foreach  A generate tid, amt;
+C = filter B by ($1>170 and $1<200);
+D = foreach C generate 1 as one;
+E = group D by one;
+F = foreach E generate COUNT(D.one);
+dump F;
+
+===================================================================================
+
+Task 3
+
+Calculate the total sum and total count of all the transaction for each user id.
+
+step1 = load '/user/cloudera/txns-large.dat' using PigStorage(',');
+step2 = foreach step1 generate $2 as uid,$3 as amt;
+step3 = group step2 by uid;
+step4 = foreach step3 generate group, SUM(step2.amt);
+dump step4;
+
+step1 = load '/user/cloudera/txns-large.dat' using PigStorage(',');
+step2 = foreach step1 generate $2 as uid,$3 as amt;
+step3 = group step2 by uid;
+step4 = foreach step3 generate group, SUM(step2.amt),COUNT(step2.amt),AVG(step2.amt);
+dump step4;
+
+===================================================================================
+
+Task 3
+
+Calculate the average transaction value for each user id.
+
+step1 = load '/user/cloudera/txns-large.dat' using PigStorage(',');
+step2 = foreach step1 generate $2 as uid,$3 as amt;
+step3 = group step2 by uid;
+step4 = foreach step3 generate group, SUM(step2.amt),COUNT(step2.amt),AVG(step2.amt);
+dump step4;
+
+===================================================================================
+
+Task 4
+
+Calculate total sales amt for each Month.
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate:chararray,uid,amt:double,cat,acc,city,state,pay);;
+b = foreach a generate SUBSTRING(tdate,0,2) as mon, amt;
+c = group b by mon;
+d = foreach c generate group, SUM(b.amt) as sum;
+Dump d;
+
+===================================================================================
+
+Task 5 
+
+Divide the file into 12 files, each file containing each month of data. For eg. file 1 should contain data of january txn, file 2 should contain data of feb txn.
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate:chararray,uid,amt:double,cat,acc,city,state,pay);;
+b = foreach a generate SUBSTRING(tdate,0,2) as month,tid,tdate,uid,amt,cat,acc,city,state,pay;
+c = filter b by month=='01';
+dump c;
+d = filter b by month=='02';
+dump d;
+e = filter b by month=='03';
+dump e;
+f = filter b by month=='04';
+dump f;
+g = filter b by month=='05';
+dump g;
+h = filter b by month=='06';
+dump h;
+i = filter b by month=='07';
+dump i;
+j = filter b by month=='08';
+dump j;
+k = filter b by month=='09';
+dump k;
+l = filter b by month=='10';
+dump l;
+m = filter b by month=='11';
+dump m;
+n = filter b by month=='12';
+dump n;
+
+===================================================================================
+Task 6 : Sort the whole file on the basis of amt.
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate:chararray,uid,amt:double,cat,acc,city,state,pay);;
+b = foreach a generate tid,tdate,uid,amt,cat,acc,city,state,pay;
+c = order b by amt;
+dump c;
+
+===================================================================================
+Task 7 : Find the name of top 3 spenders
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate,uid:int,amt:double,cat,acc,city,state,pay);
+b = load '/user/cloudera/custs-large.dat' using PigStorage(',') as
+(uid:int,fname:chararray,lname,age,prof);
+c = join a by uid,b by uid;
+d = foreach c generate $2 as uid, $3 as amt,$10 as fname;
+e = group d by (uid,fname);
+f = foreach e generate group, SUM(d.amt) as Total;
+g = order f by Total DESC;
+h = limit g 3;
+dump h;
+
+====================================================================================================================================
+Task 8 : Find the name of user who has spend the maximum amount.
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate,uid:int,amt:double,cat,acc,city,state,pay);
+b = load '/user/cloudera/custs-large.dat' using PigStorage(',') as
+(uid:int,fname:chararray,lname,age,prof);
+c = join a by uid,b by uid;
+d = foreach c generate $2 as uid, $3 as amt,$10 as fname;
+e = group d by (uid,fname);
+f = foreach e generate group, SUM(d.amt) as Total;
+g = order f by Total DESC;
+h = limit g 1;
+dump h;
+
+====================================================================================================================================
+Task 9 : Find the user who has spend the max amount in July month.
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate:chararray,uid,amt:double,cat,acc,city,state,pay);;
+b = foreach a generate SUBSTRING(tdate,0,2) as month,uid,amt;
+c = filter b by month=='07';
+d = load '/user/cloudera/custs-large.dat' using PigStorage(',') as
+(uid:int,fname:chararray,lname,age,prof);
+e = foreach d generate uid,fname;
+f = join c by uid,e by uid;
+g = foreach f generate $1 as uid, $2 as amt,$4 as fname;
+h = group g by (uid,fname);
+i = foreach h generate group, SUM(g.amt) as Total;
+j = order i by Total DESC;
+k = limit j 1;
+dump k;
+
+
+
+
+
+
+
+Task 8 :
+
+Find the profession of user who has spend the maximum amount
+
+a = load '/user/cloudera/txns-large.dat' using PigStorage(',') as (tid,tdate,uid:int,amt:double,cat,acc,city,state,pay);
+b = load '/user/cloudera/custs-large.dat' using PigStorage(',') as
+(uid:int,fname:chararray,lname,age,prof:chararray);
+c = join a by uid,b by uid;
+d = foreach c generate $2 as ID,$3 as tamt,$13 as Prof;
+f = group d by ($0,$2);
+h = foreach f generate group,SUM(d.tamt) as Res;
+i = order h by Res DESC;
+j = limit i 1;
+dump j;
+
+======================================================================================================================================
+
+SERVER Log:
+Task 1 :
+
+Create 4 output files, first containing only Error logs, second containing only Debug log, third containing only Trace logs and fourth containing rest of logs.
+
+a = load '/user/cloudera/sample.log' using PigStorage(' ') as (ldate,ltime,module:chararray,trace);
+b = foreach a generate ldate,ltime,module,trace;
+c = filter b by trace=='[ERROR]';
+dump c;
+d = filter b by trace=='[ERROR]';
+dump d;
+e = filter b by trace=='[DEBUG]';
+dump e;
+f = filter b by trace=='[TRACE]';
+dump f;
+g = filter b by trace=='[INFO]' and trace=='[FATAL]' and trace=='[WARN]';
+dump g;
+=============================================================================================================================
+Task 2:
+
+Count the number of logs of each type like trace log 7, error logs 12 and so on .
+
+a = load '/user/cloudera/sample.log' using PigStorage(' ') as (ldate,ltime,module:chararray,trace:chararray);
+b = foreach a generate trace;
+c = group b by trace;
+d = foreach c generate group,COUNT(b.trace);
+dump d;
+
+============================================================================================================
+Task 3:
+
+a = load '/user/cloudera/sample.log' using PigStorage(' ') as (ldate,ltime,module:chararray,trace:chararray);
+b = foreach a generate module,trace;
+c = filter b by trace=='[ERROR]';
+d = group c by module;
+e = foreach d generate group,COUNT(c.trace) as Result;
+f = order e by Result DESC;
+g = limit f 1;
+dump g;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
